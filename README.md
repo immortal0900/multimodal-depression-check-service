@@ -231,29 +231,35 @@ flowchart LR
 
 #### 3채널 프로소디 텐서 구조
 
+> 음성에서 **"무슨 말을 했는가"**(내용)가 아닌 **"어떻게 말했는가"**(운율)를 추출합니다.
+
 ```mermaid
-flowchart TB
-    subgraph TENSOR["3채널 프로소디 텐서 [3, 224, 224]"]
-        direction TB
-        subgraph CH1["Channel 1: Mel Spectrogram (음색)"]
-            C1_1["4x4 Average Pooling으로 음소 내용 희석"]
-            C1_2["'무슨 말인지'를 의도적으로 제거"]
-        end
-        subgraph CH2["Channel 2: Pitch F0 Band (억양)"]
-            C2_1["librosa.pyin으로 피치 검출"]
-            C2_2["가우시안 띠로 2D 시각화"]
-        end
-        subgraph CH3["Channel 3: RMS Energy (강세/리듬)"]
-            C3_1["시간에 따른 에너지 변화"]
-            C3_2["0~1 정규화"]
-        end
-    end
+flowchart LR
+    INPUT[/"음성 파일<br/>(WAV, 16kHz)"/]
+    
+    INPUT --> CH1
+    INPUT --> CH2
+    INPUT --> CH3
+
+    CH1["🎵 Ch1: 음색<br/>(Mel Spectrogram)<br/>──────────<br/>4x4 AvgPool로<br/>단어 정보 흐리게"]
+    
+    CH2["🎤 Ch2: 억양<br/>(Pitch F0)<br/>──────────<br/>목소리 높낮이<br/>변화 패턴"]
+    
+    CH3["🔊 Ch3: 리듬<br/>(RMS Energy)<br/>──────────<br/>말의 강약<br/>에너지 변화"]
 
     CH1 --> STACK
     CH2 --> STACK
     CH3 --> STACK
-    STACK["torch.cat → [3, 224, 224]"]
+    
+    STACK["3채널 결합<br/>torch.cat"]
+    STACK --> OUTPUT[/"프로소디 텐서<br/>[3, 224, 224]<br/>──────────<br/>RGB 이미지처럼<br/>CNN에 입력"/]
 ```
+
+| 채널 | 추출 정보 | 우울증 관련성 |
+|:----:|----------|--------------|
+| **Ch1: 음색** | 목소리의 음질/톤 | 우울 시 목소리가 탁해지고 단조로워짐 |
+| **Ch2: 억양** | 말의 높낮이 변화 | 우울 시 억양 변화가 줄어듦 (평탄해짐) |
+| **Ch3: 리듬** | 말의 강약/속도 | 우울 시 말이 느려지고 에너지가 낮아짐 |
 
 #### 핵심 구현
 
