@@ -19,6 +19,7 @@ dependencies = [
     "protobuf==3.20.3",
     "pydub>=0.25.1",
     "python-dotenv>=1.1.1",
+    "python-multipart>=0.0.9",
     "scikit-learn>=1.7.1",
     "seaborn>=0.13.2",
     "sentence-transformers>=5.1.0",
@@ -29,4 +30,5 @@ dependencies = [
     "tensorboardx>=2.6.4",
     "torchaudio>=2.8.0",
     "tqdm>=4.67.1",
+    "uvicorn>=0.30.0",
 ]
